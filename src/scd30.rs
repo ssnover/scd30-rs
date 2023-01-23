@@ -17,10 +17,10 @@ pub enum Command {
 }
 
 const EXPECT_MSG: &str = "Vec was not large enough";
-const ADDRESS: u8 = 0x61 << 1;
+const ADDRESS: u8 = 0x61;
 
-pub struct Scd30<T> {
-    comm:    T,
+pub struct Scd30<'a, T> {
+    comm:    &'a mut T,
     address: u8,
 }
 
@@ -34,7 +34,7 @@ pub struct Measurement {
 /// See the [datasheet] for I²c parameters.
 ///
 /// [datasheet]: https://www.sensirion.com/fileadmin/user_upload/customers/sensirion/Dokumente/9.5_CO2/Sensirion_CO2_Sensors_SCD30_Interface_Description.pdf
-impl<T, E> Scd30<T> where T: Read<Error = E> + Write<Error = E> {
+impl<'a, T, E> Scd30<'a, T> where T: Read<Error = E> + Write<Error = E> {
 
     fn add_argument<const N: usize>(&mut self, buf: &mut Vec<u8, N>, data: &[u8]) -> Result<(), ()> {
         buf.extend_from_slice(data)?;
@@ -46,7 +46,7 @@ impl<T, E> Scd30<T> where T: Read<Error = E> + Write<Error = E> {
     /// Returns an [Scd30] instance with the default address 0x61 shifted one place to the left.
     /// You may or may not need this bitshift depending on the byte size of
     /// your [I²c](embedded_hal::blocking::i2c) peripheral.
-    pub fn new(i2c: T) -> Self {
+    pub fn new(i2c: &'a mut T) -> Self {
         Scd30 {
             comm: i2c,
             address: ADDRESS
@@ -54,7 +54,7 @@ impl<T, E> Scd30<T> where T: Read<Error = E> + Write<Error = E> {
     }
 
     /// Returns an [Scd30] instance with the specified address.
-    pub fn new_with_address(i2c: T, address: u8) -> Self {
+    pub fn new_with_address(i2c: &'a mut T, address: u8) -> Self {
         Scd30 {
             comm: i2c,
             address

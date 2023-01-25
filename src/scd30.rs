@@ -19,7 +19,7 @@ pub enum Command {
 const EXPECT_MSG: &str = "Vec was not large enough";
 const ADDRESS: u8 = 0x61;
 
-pub struct Scd30<'a, T> {
+pub struct Scd30<'a, T: ?Sized> {
     comm:    &'a mut T,
     address: u8,
 }
@@ -34,7 +34,7 @@ pub struct Measurement {
 /// See the [datasheet] for I²c parameters.
 ///
 /// [datasheet]: https://www.sensirion.com/fileadmin/user_upload/customers/sensirion/Dokumente/9.5_CO2/Sensirion_CO2_Sensors_SCD30_Interface_Description.pdf
-impl<'a, T, E> Scd30<'a, T> where T: Read<Error = E> + Write<Error = E> {
+impl<'a, T, E> Scd30<'a, T> where T: Read<Error = E> + Write<Error = E> + ?Sized {
 
     fn add_argument<const N: usize>(&mut self, buf: &mut Vec<u8, N>, data: &[u8]) -> Result<(), ()> {
         buf.extend_from_slice(data)?;
